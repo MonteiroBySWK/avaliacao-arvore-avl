@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 // Funções de Lista
@@ -15,6 +16,51 @@ Lista *criarLista() {
     *lista = NULL;
   }
   return lista;
+}
+
+void inserirNaLista(Lista *lista, int valor) {
+  if (lista == NULL)
+    return;
+
+  NoLista *novoNo = (NoLista *)malloc(sizeof(NoLista));
+
+  if (novoNo == NULL)
+    return;
+
+  novoNo->valor = valor;
+  novoNo->proximo = NULL;
+
+  if (*lista == NULL) {
+    *lista = novoNo;
+  } else {
+    NoLista *atual = *lista;
+    while (atual->proximo != NULL) {
+      atual = atual->proximo;
+    }
+
+    atual->proximo = novoNo;
+  }
+}
+
+void inserirValoresDoVetorNaLista(Lista *lista, int *v) {
+  if (lista == NULL)
+    return;
+
+  for (int i = 0; i < 15; i++) {
+    inserirNaLista(lista, v[i]);
+  }
+}
+
+void exibirLista(Lista *lista) {
+  if (lista == NULL)
+    return;
+
+  NoLista *atual = *lista;
+  while (atual != NULL) {
+    printf("%i - ", atual->valor);
+    atual = atual->proximo;
+  }
+  printf("\n");
 }
 
 // Funções da Arvore
@@ -70,5 +116,10 @@ int main() {
                             59, 70, 68, 39, 62, 7,  60};
   int itemsParaRemover[] = {43, 16, 67, 34, 35};
 
+  // Teste Lista
+  Lista *lista = criarLista();
+  inserirValoresDoVetorNaLista(lista, itemsParaInserir);
+  exibirLista(lista);
+  // Passou
   return 0;
 }
