@@ -100,12 +100,39 @@ int inserirNaArvore(Arvore *arvore, int valorNovo) {
     No *anterior = NULL;
     while (atual != NULL) {
       anterior = atual;
+      if (novoNo->valor < atual->valor)
+        atual = atual->esquerdo;
+      else
+        atual = atual->direito;
     }
+    if (novoNo->valor < anterior->valor)
+      anterior->esquerdo = novoNo;
+    else
+      anterior->direito = novoNo;
   }
 
   novoNo->fatorBalanciamento = 0;
 
   return 0;
+}
+
+void inserirListaNaArvore(Lista *lista, Arvore *arvore) {
+  NoLista *atual = *lista;
+  while (atual != NULL) {
+    inserirNaArvore(arvore, atual->valor);
+    atual = atual->proximo;
+  }
+}
+
+void exibirInOrdem(Arvore *arvore) {
+  if (arvore == NULL)
+    return;
+
+  if (*arvore != NULL) {
+    exibirInOrdem(&(*arvore)->esquerdo);
+    printf("%i - ", (*arvore)->valor);
+    exibirInOrdem(&(*arvore)->direito);
+  }
 }
 
 int removerDaArvore(Arvore *arvore, int valorExclusao) { return 0; }
@@ -121,5 +148,11 @@ int main() {
   inserirValoresDoVetorNaLista(lista, itemsParaInserir);
   exibirLista(lista);
   // Passou
+
+  // Teste de Inserção Arvore
+  Arvore *arvore = criarArvore();
+  inserirListaNaArvore(lista, arvore);
+  exibirInOrdem(arvore);
+
   return 0;
 }
