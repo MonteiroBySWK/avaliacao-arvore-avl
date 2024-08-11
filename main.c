@@ -1,5 +1,23 @@
 #include <stdlib.h>
 
+// Funções de Lista
+
+typedef struct noLista {
+  int valor;
+  struct noLista *proximo;
+} NoLista;
+
+typedef struct noLista *Lista;
+
+Lista *criarLista() {
+  Lista *lista = (Lista *)malloc(sizeof(Lista));
+  if (lista != NULL) {
+    *lista = NULL;
+  }
+  return lista;
+}
+
+// Funções da Arvore
 typedef struct no {
   int valor;
   int fatorBalanciamento;
@@ -17,7 +35,32 @@ Arvore *criarArvore() {
   return arvore;
 }
 
-int inserirNaArvore(Arvore *arvore, int valorNovo) { return 0; }
+int inserirNaArvore(Arvore *arvore, int valorNovo) {
+  if (arvore == NULL)
+    return 0;
+
+  No *novoNo = (No *)malloc(sizeof(No));
+  if (novoNo == NULL)
+    return 0;
+
+  novoNo->esquerdo = NULL;
+  novoNo->direito = NULL;
+  novoNo->valor = valorNovo;
+
+  if (*arvore == NULL) {
+    *arvore = novoNo;
+  } else {
+    No *atual = *arvore;
+    No *anterior = NULL;
+    while (atual != NULL) {
+      anterior = atual;
+    }
+  }
+
+  novoNo->fatorBalanciamento = 0;
+
+  return 0;
+}
 
 int removerDaArvore(Arvore *arvore, int valorExclusao) { return 0; }
 
