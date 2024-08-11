@@ -64,14 +64,14 @@ void exibirLista(Lista *lista) {
 }
 
 // Funções da Arvore
-typedef struct no {
+typedef struct noArvore {
   int valor;
   int fatorBalanciamento;
-  struct no *esquerdo;
-  struct no *direito;
-} No;
+  struct noArvore *esquerdo;
+  struct noArvore *direito;
+} NoArvore;
 
-typedef struct no *Arvore;
+typedef struct noArvore *Arvore;
 
 Arvore *criarArvore() {
   Arvore *arvore = (Arvore *)malloc(sizeof(Arvore));
@@ -81,23 +81,59 @@ Arvore *criarArvore() {
   return arvore;
 }
 
+int alturaNo(NoArvore *no) {
+  if (no == NULL)
+    return 0;
+
+  if (no->direito == NULL && no->esquerdo == NULL)
+    return 0;
+
+  int alturaEsquerda = alturaNo(no->esquerdo);
+  int alturaDireita = alturaNo(no->direito);
+  if (alturaEsquerda > alturaDireita)
+    return alturaEsquerda + 1;
+  else
+    return alturaDireita + 1;
+}
+
+int calcularFatorDeBalaciamento(NoArvore *no) {
+  return alturaNo(no->esquerdo) - alturaNo(no->direito);
+}
+
+void calcularTodosOsFatoresDeBalanceamento(Arvore *arvore) {
+  if (arvore == NULL)
+    return;
+
+  if (*arvore != NULL) {
+    calcularTodosOsFatoresDeBalanceamento(&(*arvore)->esquerdo);
+    calcularTodosOsFatoresDeBalanceamento(&(*arvore)->direito);
+    (*arvore)->fatorBalanciamento = calcularFatorDeBalaciamento(*arvore);
+  }
+}
+
+void giroSimples(Arvore *arvore) {}
+
+void giroDuplo(Arvore *arvore) {}
+
 int inserirNaArvore(Arvore *arvore, int valorNovo) {
   if (arvore == NULL)
     return 0;
 
-  No *novoNo = (No *)malloc(sizeof(No));
+  NoArvore *novoNo = (NoArvore *)malloc(sizeof(NoArvore));
   if (novoNo == NULL)
     return 0;
 
   novoNo->esquerdo = NULL;
   novoNo->direito = NULL;
   novoNo->valor = valorNovo;
+  novoNo->fatorBalanciamento = 0;
 
   if (*arvore == NULL) {
     *arvore = novoNo;
+    novoNo->fatorBalanciamento = 0;
   } else {
-    No *atual = *arvore;
-    No *anterior = NULL;
+    NoArvore *atual = *arvore;
+    NoArvore *anterior = NULL;
     while (atual != NULL) {
       anterior = atual;
       if (novoNo->valor < atual->valor)
@@ -111,8 +147,7 @@ int inserirNaArvore(Arvore *arvore, int valorNovo) {
       anterior->direito = novoNo;
   }
 
-  novoNo->fatorBalanciamento = 0;
-
+  calcularTodosOsFatoresDeBalanceamento(arvore);
   return 0;
 }
 
@@ -130,7 +165,8 @@ void exibirInOrdem(Arvore *arvore) {
 
   if (*arvore != NULL) {
     exibirInOrdem(&(*arvore)->esquerdo);
-    printf("%i - ", (*arvore)->valor);
+    printf("v: %i - \n", (*arvore)->valor);
+    printf("fb: %i - \n", (*arvore)->fatorBalanciamento);
     exibirInOrdem(&(*arvore)->direito);
   }
 }
@@ -153,6 +189,6 @@ int main() {
   Arvore *arvore = criarArvore();
   inserirListaNaArvore(lista, arvore);
   exibirInOrdem(arvore);
-
+  // Passou
   return 0;
 }
