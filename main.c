@@ -85,9 +85,6 @@ int alturaNo(NoArvore *no) {
   if (no == NULL)
     return 0;
 
-  if (no->direito == NULL && no->esquerdo == NULL)
-    return 0;
-
   int alturaEsquerda = alturaNo(no->esquerdo);
   int alturaDireita = alturaNo(no->direito);
   if (alturaEsquerda > alturaDireita)
@@ -105,9 +102,9 @@ void calcularTodosOsFatoresDeBalanceamento(Arvore *arvore) {
     return;
 
   if (*arvore != NULL) {
+    (*arvore)->fatorBalanciamento = calcularFatorDeBalaciamento(*arvore);
     calcularTodosOsFatoresDeBalanceamento(&(*arvore)->esquerdo);
     calcularTodosOsFatoresDeBalanceamento(&(*arvore)->direito);
-    (*arvore)->fatorBalanciamento = calcularFatorDeBalaciamento(*arvore);
   }
 }
 
@@ -123,31 +120,32 @@ int calcularMaiorFatorDeBalanceamento(NoArvore *no) {
 
 void giroSimples(NoArvore *no) {
   // Esquerda
-  if (no->fatorBalanciamento > 1 && no->esquerdo->fatorBalanciamento >= 0) {
+  printf("entrou na simples\n");
+  if (no->fatorBalanciamento >= 2 && no->esquerdo->fatorBalanciamento >= 0) {
     NoArvore *auxiliar = no->esquerdo;
     no->esquerdo = auxiliar->direito;
     auxiliar->direito = no;
-    calcularMaiorFatorDeBalanceamento(no);
+    auxiliar->fatorBalanciamento = calcularFatorDeBalaciamento(no);
     no = auxiliar;
   }
   // Direita
-  if (no->fatorBalanciamento < -1 && no->direito->fatorBalanciamento <= 0) {
+  if (no->fatorBalanciamento <= -2 && no->direito->fatorBalanciamento <= 0) {
     NoArvore *auxiliar = no->direito;
     no->direito = auxiliar->esquerdo;
     auxiliar->esquerdo = no;
-    calcularMaiorFatorDeBalanceamento(no);
+    auxiliar->fatorBalanciamento = calcularFatorDeBalaciamento(no);
     no = auxiliar;
   }
 }
 
 void giroDuplo(NoArvore *no) {
   // Esquerda
-  if (no->fatorBalanciamento < -1 && no->direito->fatorBalanciamento >= 0) {
+  if (no->fatorBalanciamento <= -2 && no->direito->fatorBalanciamento >= 0) {
     giroSimples(no->esquerdo);
     giroSimples(no);
   }
   // Direita
-  if (no->fatorBalanciamento > 1 && no->esquerdo->fatorBalanciamento <= 0) {
+  if (no->fatorBalanciamento >= 2 && no->esquerdo->fatorBalanciamento <= 0) {
     giroSimples(no->direito);
     giroSimples(no);
   }
@@ -158,11 +156,15 @@ void balanciarArvore(Arvore *arvore) {
     return;
 
   if (*arvore != NULL) {
-    balanciarArvore(&(*arvore)->esquerdo);
-    balanciarArvore(&(*arvore)->direito);
-
-    giroDuplo(*arvore);
-    calcularTodosOsFatoresDeBalanceamento(arvore);
+    if ((*arvore)->fatorBalanciamento >= 2 ||
+        (*arvore)->fatorBalanciamento <= -2) {
+      printf("tentar balanciar\n");
+      giroSimples(*arvore);
+      giroDuplo(*arvore);
+    } else {
+      balanciarArvore(&(*arvore)->esquerdo);
+      balanciarArvore(&(*arvore)->direito);
+    }
   }
 }
 
@@ -181,7 +183,6 @@ int inserirNaArvore(Arvore *arvore, int valorNovo) {
 
   if (*arvore == NULL) {
     *arvore = novoNo;
-    novoNo->fatorBalanciamento = 0;
   } else {
     NoArvore *atual = *arvore;
     NoArvore *anterior = NULL;
@@ -198,17 +199,12 @@ int inserirNaArvore(Arvore *arvore, int valorNovo) {
       anterior->direito = novoNo;
   }
 
+  printf("inserido\n");
   calcularTodosOsFatoresDeBalanceamento(arvore);
+  printf("fatores calculados\n");
   balanciarArvore(arvore);
+  printf("balaciado\n\n");
   return 0;
-}
-
-void inserirListaNaArvore(Lista *lista, Arvore *arvore) {
-  NoLista *atual = *lista;
-  while (atual != NULL) {
-    inserirNaArvore(arvore, atual->valor);
-    atual = atual->proximo;
-  }
 }
 
 void exibirInOrdem(Arvore *arvore) {
@@ -216,9 +212,9 @@ void exibirInOrdem(Arvore *arvore) {
     return;
 
   if (*arvore != NULL) {
+    printf("{ v: %i, ", (*arvore)->valor);
+    printf("fb: %i }\n", (*arvore)->fatorBalanciamento);
     exibirInOrdem(&(*arvore)->esquerdo);
-    printf("v: %i - \n", (*arvore)->valor);
-    printf("fb: %i - \n", (*arvore)->fatorBalanciamento);
     exibirInOrdem(&(*arvore)->direito);
   }
 }
@@ -232,14 +228,42 @@ int main() {
   int itemsParaRemover[] = {43, 16, 67, 34, 35};
 
   // Teste Lista
-  Lista *lista = criarLista();
+  /*Lista *lista = criarLista();
   inserirValoresDoVetorNaLista(lista, itemsParaInserir);
-  exibirLista(lista);
+  exibirLista(lista);*/
   // Passou
 
-  // Teste de Inserção Arvore
+  // Teste de Inserção Arvore e Balaceio
   Arvore *arvore = criarArvore();
-  inserirListaNaArvore(lista, arvore);
+  inserirNaArvore(arvore, itemsParaInserir[0]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[1]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[2]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[3]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[4]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[5]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[6]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[7]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[8]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[9]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[10]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[11]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[12]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[13]);
+  exibirInOrdem(arvore);
+  inserirNaArvore(arvore, itemsParaInserir[14]);
   exibirInOrdem(arvore);
   // Passou
   return 0;
