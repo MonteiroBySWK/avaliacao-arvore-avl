@@ -111,9 +111,60 @@ void calcularTodosOsFatoresDeBalanceamento(Arvore *arvore) {
   }
 }
 
-void giroSimples(Arvore *arvore) {}
+int calcularMaiorFatorDeBalanceamento(NoArvore *no) {
+  int fator1 = calcularFatorDeBalaciamento(no->esquerdo);
+  int fator2 = calcularFatorDeBalaciamento(no->direito);
 
-void giroDuplo(Arvore *arvore) {}
+  if (fator1 > fator2)
+    return fator1;
+  else
+    return fator2;
+}
+
+void giroSimples(NoArvore *no) {
+  // Esquerda
+  if (no->fatorBalanciamento > 1 && no->esquerdo->fatorBalanciamento >= 0) {
+    NoArvore *auxiliar = no->esquerdo;
+    no->esquerdo = auxiliar->direito;
+    auxiliar->direito = no;
+    calcularMaiorFatorDeBalanceamento(no);
+    no = auxiliar;
+  }
+  // Direita
+  if (no->fatorBalanciamento < -1 && no->direito->fatorBalanciamento <= 0) {
+    NoArvore *auxiliar = no->direito;
+    no->direito = auxiliar->esquerdo;
+    auxiliar->esquerdo = no;
+    calcularMaiorFatorDeBalanceamento(no);
+    no = auxiliar;
+  }
+}
+
+void giroDuplo(NoArvore *no) {
+  // Esquerda
+  if (no->fatorBalanciamento < -1 && no->direito->fatorBalanciamento >= 0) {
+    giroSimples(no->esquerdo);
+    giroSimples(no);
+  }
+  // Direita
+  if (no->fatorBalanciamento > 1 && no->esquerdo->fatorBalanciamento <= 0) {
+    giroSimples(no->direito);
+    giroSimples(no);
+  }
+}
+
+void balanciarArvore(Arvore *arvore) {
+  if (arvore == NULL)
+    return;
+
+  if (*arvore != NULL) {
+    balanciarArvore(&(*arvore)->esquerdo);
+    balanciarArvore(&(*arvore)->direito);
+
+    giroDuplo(*arvore);
+    calcularTodosOsFatoresDeBalanceamento(arvore);
+  }
+}
 
 int inserirNaArvore(Arvore *arvore, int valorNovo) {
   if (arvore == NULL)
@@ -148,6 +199,7 @@ int inserirNaArvore(Arvore *arvore, int valorNovo) {
   }
 
   calcularTodosOsFatoresDeBalanceamento(arvore);
+  balanciarArvore(arvore);
   return 0;
 }
 
