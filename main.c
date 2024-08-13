@@ -109,39 +109,53 @@ void calcularTodosOsFatoresDeBalanceamento(Arvore *arvore) {
 }
 // Ate aqui funciona
 
-void giroSimples(NoArvore *no, int giroDuplo) {
+void giroSimplesEsquerda(Arvore *arvore) {}
+void giroSimplesDireita(Arvore *arvore) {}
+void giroDuploEsquerdaDireita(Arvore *arvore) {}
+void giroDuploDireitaEsquerda(Arvore *arvore) {}
+
+void giroSimples(Arvore *subarvore, int giroDuplo) {
+  // giroDuplo: 1 = Esquerda e 2 = Direita
+
   // Esquerda
   printf("Entrou na Simples\n");
-  if ((no->fatorBalanciamento <= -2 && no->direito->fatorBalanciamento <= 0) ||
+  if (((*subarvore)->fatorBalanciamento <= -2 &&
+       (*subarvore)->direito->fatorBalanciamento <= 0) ||
       giroDuplo == 1) {
 
     printf("Rotação Simples a Esquerda\n");
 
-    NoArvore *auxiliar = no->direito;
-    no->direito = auxiliar->esquerdo;
-    auxiliar->esquerdo = no;
-    no->fatorBalanciamento = calcularFatorDeBalaciamento(auxiliar);
-    auxiliar->fatorBalanciamento = calcularFatorDeBalaciamento(no);
+    NoArvore *auxiliar = (*subarvore)->direito;
+    (*subarvore)->direito = auxiliar->esquerdo;
+    auxiliar->esquerdo = (*subarvore);
+    //(*subarvore)->fatorBalanciamento =
+    // calcularFatorDeBalaciamento(*subarvore);
+    // auxiliar->fatorBalanciamento = calcularFatorDeBalaciamento(auxiliar);
+    (*subarvore) = auxiliar;
 
-    no = auxiliar;
+    calcularTodosOsFatoresDeBalanceamento(subarvore);
 
     printf("Balanceio Completo na Simples\n");
 
     return;
   }
-  // Direita-
-  if ((no->fatorBalanciamento >= 2 && no->esquerdo->fatorBalanciamento >= 0) ||
+  // Direita
+  if (((*subarvore)->fatorBalanciamento >= 2 &&
+       (*subarvore)->esquerdo->fatorBalanciamento >= 0) ||
       giroDuplo == 2) {
 
     printf("Rotação a Direita\n");
 
-    NoArvore *auxiliar = no->esquerdo;
-    no->esquerdo = auxiliar->direito;
-    auxiliar->direito = no;
-    no->fatorBalanciamento = calcularFatorDeBalaciamento(auxiliar);
-    auxiliar->fatorBalanciamento = calcularFatorDeBalaciamento(no);
+    NoArvore *auxiliar = (*subarvore)->esquerdo;
+    (*subarvore)->esquerdo = auxiliar->direito;
+    auxiliar->direito = (*subarvore);
+    // (*subarvore)->fatorBalanciamento =
+    // calcularFatorDeBalaciamento(*subarvore); auxiliar->fatorBalanciamento =
+    // calcularFatorDeBalaciamento(auxiliar);
 
-    no = auxiliar;
+    *subarvore = auxiliar;
+
+    calcularTodosOsFatoresDeBalanceamento(subarvore);
 
     printf("Balanceio Completo na Simples\n");
 
@@ -150,27 +164,29 @@ void giroSimples(NoArvore *no, int giroDuplo) {
   printf("Saiu da Simples\n");
 }
 
-void giroDuplo(NoArvore *no) {
+void giroDuplo(Arvore *subarvore) {
   printf("Entrou na Dupla\n");
   //
-  if (no->fatorBalanciamento <= -2 && no->direito->fatorBalanciamento >= 0) {
+  if ((*subarvore)->fatorBalanciamento <= -2 &&
+      (*subarvore)->direito->fatorBalanciamento >= 0) {
 
     printf("Rotação Direita Esquerda\n");
 
-    giroSimples(no->direito, 2);
-    giroSimples(no, 1);
+    giroSimples(&(*subarvore)->direito, 2);
+    giroSimples(&(*subarvore), 1);
 
     printf("Balanceio Completo na Dupla\n");
 
     return;
   }
   //
-  if (no->fatorBalanciamento >= 2 && no->esquerdo->fatorBalanciamento <= 0) {
+  if ((*subarvore)->fatorBalanciamento >= 2 &&
+      (*subarvore)->esquerdo->fatorBalanciamento <= 0) {
 
     printf("Rotação Esquerda Direita\n");
 
-    giroSimples(no->esquerdo, 1);
-    giroSimples(no, 2);
+    giroSimples(&(*subarvore)->esquerdo, 1);
+    giroSimples(&(*subarvore), 2);
 
     printf("Balanceio Completo na Dupla\n");
 
@@ -187,8 +203,8 @@ void balanciarArvore(Arvore *arvore) {
     if ((*arvore)->fatorBalanciamento >= 2 ||
         (*arvore)->fatorBalanciamento <= -2) {
       printf("Tentar Balanciar\n");
-      giroSimples(*arvore, 0);
-      giroDuplo(*arvore);
+      giroSimples(arvore, 0);
+      giroDuplo(arvore);
     } else {
       balanciarArvore(&(*arvore)->esquerdo);
       balanciarArvore(&(*arvore)->direito);
@@ -201,9 +217,9 @@ void exibirInOrdem(Arvore *arvore) {
     return;
 
   if (*arvore != NULL) {
+    exibirInOrdem(&(*arvore)->esquerdo);
     printf("{ v: %i, ", (*arvore)->valor);
     printf("fb: %i }\n", (*arvore)->fatorBalanciamento);
-    exibirInOrdem(&(*arvore)->esquerdo);
     exibirInOrdem(&(*arvore)->direito);
   }
 }
@@ -240,15 +256,13 @@ int inserirNaArvore(Arvore *arvore, int valorNovo) {
   }
 
   printf("Inserido\n");
-  exibirInOrdem(arvore);
-
   calcularTodosOsFatoresDeBalanceamento(arvore);
-  printf("fatores calculados\n");
+  printf("Fatores Calculados\n");
   exibirInOrdem(arvore);
 
   balanciarArvore(arvore);
-  printf("balaciado\n\n");
   calcularTodosOsFatoresDeBalanceamento(arvore);
+  exibirInOrdem(arvore);
   return 0;
 }
 
@@ -285,6 +299,5 @@ int main() {
   inserirNaArvore(arvore, itemsParaInserir[14]);
   // Passou
 
-  exibirInOrdem(arvore);
   return 0;
 }
