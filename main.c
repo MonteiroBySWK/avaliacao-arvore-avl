@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Aluno: Gabriel Silva Monteiro
+// Disciplina: Estrutura de Dados Básica 2024.1
+// Avaliação 3
+// Projeto disponivel em https://github.com/MonteiroBySWK/avaliacao-arvore-avl
+
 // Funções de Lista
 
 typedef struct noLista {
@@ -320,11 +325,6 @@ void mostrarTodosOsFilhos(Arvore *arvore) {
 }
 
 int main() {
-  // Vetores e não listas para testar a arvore
-  int itemsParaInserir[] = {1,  64, 12, 18, 66, 38, 95, 58,
-                            59, 70, 68, 39, 62, 7,  60};
-  int itemsParaRemover[] = {43, 16, 67, 34, 35};
-
   // Inicio da Letra A)
   // Armazenando os elementos na Lista Encadeada
   Lista *lista = criarLista();
@@ -364,6 +364,7 @@ int main() {
   removerDaArvore(arvore, 43); // Tenta remover, se o elemento não estiver na
                                // arvore o programa avisa no terminal que não
                                // foi possivel retirar por não ter encontrado
+
   removerDaArvore(arvore, 16);
   removerDaArvore(arvore, 67);
   removerDaArvore(arvore, 34);
@@ -401,6 +402,5 @@ int main() {
     }
   }
   // Fim da Letra C)
-
   return 0;
 }
