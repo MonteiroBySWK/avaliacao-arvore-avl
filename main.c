@@ -42,25 +42,17 @@ void inserirNaLista(Lista *lista, int valor) {
   }
 }
 
-void inserirValoresDoVetorNaLista(Lista *lista, int *v) {
-  if (lista == NULL)
-    return;
-
-  for (int i = 0; i < 15; i++) {
-    inserirNaLista(lista, v[i]);
-  }
-}
-
 void exibirLista(Lista *lista) {
   if (lista == NULL)
     return;
 
   NoLista *atual = *lista;
+  printf("[");
   while (atual != NULL) {
-    printf("%i - ", atual->valor);
+    printf("%i, ", atual->valor);
     atual = atual->proximo;
   }
-  printf("\n");
+  printf("]\n");
 }
 
 // Funções da Arvore
@@ -268,9 +260,8 @@ void exibirInOrdem(Arvore *arvore) {
 
   if (*arvore != NULL) {
     exibirInOrdem(&(*arvore)->esquerdo);
-    printf("{ v: %i, ", (*arvore)->valor);
-    printf("fbc: %i - fbs: %i }\n", calcularFatorDeBalaciamento(*arvore),
-           (*arvore)->fatorBalanciamento);
+    printf("{ Valor: %i, ", (*arvore)->valor);
+    printf("Fator de Balanciamento: %i }\n", (*arvore)->fatorBalanciamento);
     exibirInOrdem(&(*arvore)->direito);
   }
 }
@@ -291,12 +282,12 @@ void mostrarFilhos(Arvore *arvore, int noPai) {
       }
 
       if (atual == NULL) {
-        printf("Elemento não presente na Arvore\n\n");
+        printf("Elemento não presente na Arvore\n");
         return;
       }
     }
 
-    printf("No Pai: { Valor: %d,\n", noPai);
+    printf("\nNo Pai: { Valor: %d,\n", noPai);
     printf("\t  Fator de Balanciamento: %d,\n", atual->fatorBalanciamento);
 
     if (atual->esquerdo == NULL)
@@ -308,12 +299,23 @@ void mostrarFilhos(Arvore *arvore, int noPai) {
     }
 
     if (atual->direito == NULL)
-      printf("\n\t  No Direito:  { NULL },\n");
+      printf("\n\t  No Direito:  { NULL },\n}\n");
     else {
       printf("\n\t  No Direito:  { Valor: %d,\n", atual->direito->valor);
       printf("\t\t\t Fator de Balanciamento: %d\n\t  }\n}\n",
              atual->direito->fatorBalanciamento);
     }
+  }
+}
+
+void mostrarTodosOsFilhos(Arvore *arvore) {
+  if (arvore == NULL)
+    return;
+
+  if (*arvore != NULL) {
+    mostrarTodosOsFilhos(&(*arvore)->esquerdo);
+    mostrarFilhos(arvore, (*arvore)->valor);
+    mostrarTodosOsFilhos(&(*arvore)->direito);
   }
 }
 
@@ -323,45 +325,82 @@ int main() {
                             59, 70, 68, 39, 62, 7,  60};
   int itemsParaRemover[] = {43, 16, 67, 34, 35};
 
+  // Inicio da Letra A)
+  // Armazenando os elementos na Lista Encadeada
   Lista *lista = criarLista();
-  inserirValoresDoVetorNaLista(lista, itemsParaInserir);
+  inserirNaLista(lista, 1);
+  inserirNaLista(lista, 64);
+  inserirNaLista(lista, 12);
+  inserirNaLista(lista, 18);
+  inserirNaLista(lista, 66);
+  inserirNaLista(lista, 38);
+  inserirNaLista(lista, 95);
+  inserirNaLista(lista, 58);
+  inserirNaLista(lista, 59);
+  inserirNaLista(lista, 70);
+  inserirNaLista(lista, 68);
+  inserirNaLista(lista, 39);
+  inserirNaLista(lista, 62);
+  inserirNaLista(lista, 7);
+  inserirNaLista(lista, 60);
+  printf("Elementos da Lista: "); // Exibir os Elementos que foram inseridos na
+                                  // Lista
   exibirLista(lista);
-  // Passou
+  // Fim do Armazanamento
 
-  // Teste de Inserção Arvore e Balaceio
+  // Inserção dos Elementos da Lista na Arvore
   Arvore *arvore = criarArvore();
-  inserirNaArvore(arvore, itemsParaInserir[0]);
-  inserirNaArvore(arvore, itemsParaInserir[1]);
-  inserirNaArvore(arvore, itemsParaInserir[2]);
-  inserirNaArvore(arvore, itemsParaInserir[3]);
-  inserirNaArvore(arvore, itemsParaInserir[4]);
-  inserirNaArvore(arvore, itemsParaInserir[5]);
-  inserirNaArvore(arvore, itemsParaInserir[6]);
-  inserirNaArvore(arvore, itemsParaInserir[7]);
-  inserirNaArvore(arvore, itemsParaInserir[8]);
-  inserirNaArvore(arvore, itemsParaInserir[9]);
-  inserirNaArvore(arvore, itemsParaInserir[10]);
-  inserirNaArvore(arvore, itemsParaInserir[11]);
-  inserirNaArvore(arvore, itemsParaInserir[12]);
-  inserirNaArvore(arvore, itemsParaInserir[13]);
-  inserirNaArvore(arvore, itemsParaInserir[14]);
 
-  removerDaArvore(arvore, itemsParaRemover[0]);
-  removerDaArvore(arvore, itemsParaRemover[1]);
-  removerDaArvore(arvore, itemsParaRemover[2]);
-  removerDaArvore(arvore, itemsParaRemover[3]);
-  removerDaArvore(arvore, itemsParaRemover[4]);
+  NoLista *atual = *lista;
+  while (atual != NULL) { // Adiciona um elemento por vez da Lista na Arvore
+    inserirNaArvore(arvore, atual->valor);
+    atual = atual->proximo;
+  }
+  // Fim da Letra A)
 
+  // Inicio da Letra B)
+  // Remoção dos Elementos Pedidos da Arvore
+  printf("\nRemovendo Elementos: \n");
+  removerDaArvore(arvore, 43); // Tenta remover, se o elemento não estiver na
+                               // arvore o programa avisa no terminal que não
+                               // foi possivel retirar por não ter encontrado
+  removerDaArvore(arvore, 16);
+  removerDaArvore(arvore, 67);
+  removerDaArvore(arvore, 34);
+  removerDaArvore(arvore, 35);
+  printf("\n");
+  // Fim da Letra B)
+
+  // Exibindo os Elementos para verificar os fatores de balaciamento
+  printf("Estados do Elementos da Arvore ao Final das Operações: \n");
   exibirInOrdem(arvore);
 
-  printf("\n\nDigite um numero da Arvore para obter seus filhos>> ");
-  int pai;
-  scanf("%d", &pai);
-  mostrarFilhos(arvore, pai);
-  return 0;
-  // Passou
-
-  exibirInOrdem(arvore);
+  // Inicio da Letra C)
+  // Exibição dos Elementos filhos com seus fatores dado um no
+  int sair = 0; // Por falta de detalhes e clareza na forma de apresentar há
+                // duas opções para exibir :
+                // 1 - Exibir os Filhos de Todos os Elementos da Arvore ou
+                // 2 - Exibir Apenas um (da Entrada/Teclado)
+  while (!sair) {
+    printf("\nMostrar Filhos");
+    printf("\n[1] - Exibir os Filhos de Todos os Elementos da Arvore\n");
+    printf("[2] - Escolher um para exibir\n");
+    printf("[0] - Sair\nEscolha>> ");
+    int escolha;
+    scanf("%d", &escolha);
+    if (escolha == 1) {
+      mostrarTodosOsFilhos(arvore);
+    } else if (escolha == 2) {
+      printf("\n\nDigite um numero da Arvore para obter seus filhos>> ");
+      int pai;
+      scanf("%d", &pai);
+      printf("\nResultados:\n");
+      mostrarFilhos(arvore, pai);
+    } else if (escolha == 0) {
+      sair = 1;
+    }
+  }
+  // Fim da Letra C)
 
   return 0;
 }
